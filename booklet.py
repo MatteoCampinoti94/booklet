@@ -55,6 +55,11 @@ def join_pages(pages: list[PageObject | None]) -> list[PageObject]:
     return pages_join
 
 
+def split_pages(pages: list[PageObject], joined: bool) -> tuple[list[PageObject], list[PageObject]]:
+    return [page for p in range(0, len(pages), 2) for page in pages[p:p + 2 - joined]], \
+           [page for p in range(1, len(pages), 2) for page in pages[p:p + 2 - joined]]
+
+
 def write_pages(file: Path, pages: list[PageObject]):
     writer: PdfFileWriter = PdfFileWriter()
     for page in pages:
@@ -72,9 +77,10 @@ def write_pages(file: Path, pages: list[PageObject]):
 @option("--print-pattern", is_flag=True, default=False, help="Print pages pattern")
 @option("--double-sided", is_flag=True, default=False, help="Generate booklet to be printed on both sides")
 @option("--join-pages", "join_pages_", is_flag=True, default=False, help="Join pages")
+@option("--split-pages", "split_pages_", is_flag=True, default=False, help="Split pages into print sides")
 @help_option("-h", "--help")
 def main(infile: Path, outfile: Path, cover_page: Path | None, print_pattern: bool, double_sided: bool,
-         join_pages_: bool):
+         join_pages_: bool, split_pages_: bool):
     pages: list[PageObject] = read_pages(infile)
     pages = arrange_pages(pages, double_sided)
     if print_pattern:
@@ -87,7 +93,12 @@ def main(infile: Path, outfile: Path, cover_page: Path | None, print_pattern: bo
         if double_sided:
             pages.insert(1, PageObject.createBlankPage(None, float(cover.mediaBox.getWidth()),
                                                        float(cover.mediaBox.getHeight())))
-    write_pages(outfile, pages)
+    if split_pages_:
+        recto, verso = split_pages(pages, join_pages_)
+        write_pages(outfile.with_name(f"recto - {outfile.name}"), recto)
+        write_pages(outfile.with_name(f"verso - {outfile.name}"), verso)
+    else:
+        write_pages(outfile, pages)
 
 
 if __name__ == '__main__':
