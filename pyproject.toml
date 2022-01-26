@@ -2,7 +2,16 @@
 name = "booklet"
 version = "0.1.0"
 description = "PDF to printable booklet utility."
+homepage = "https://github.com/MatteoCampinoti94/booklet"
+repository = "https://github.com/MatteoCampinoti94/booklet"
 authors = ["Matteo Campinoti <matteo.campinoti94@gmail.com>"]
+
+[tool.poetry.urls]
+"Source" = "https://github.com/MatteoCampinoti94/booklet"
+"Download" = "https://pypi.org/project/booklet/#files"
+
+[tool.poetry.scripts]
+booklet = "booklet:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
